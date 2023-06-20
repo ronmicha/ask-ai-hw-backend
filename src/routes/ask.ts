@@ -44,6 +44,7 @@ router.post("/", async (req: Request, res: Response) => {
           console.error(
             `Failed to get chunk content. Chunk ID: ${chunkId}.\n${e}`
           );
+          return "";
         });
     });
     const chunksContent = await Promise.all(chunkContentPromises);
