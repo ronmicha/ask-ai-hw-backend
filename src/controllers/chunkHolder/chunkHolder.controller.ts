@@ -5,8 +5,10 @@ import {
   GenerateTokenResponse,
 } from "../../services/chunkHolder";
 
-export const generateToken = async (apiKey: string): Promise<string> => {
-  const headers = { "X-API-Key": apiKey };
+const { CHUNK_HOLDER_API_KEY_1: CHUNK_HOLDER_API_KEY } = process.env;
+
+export const generateToken = async (): Promise<string> => {
+  const headers = { "X-API-Key": CHUNK_HOLDER_API_KEY };
 
   const response = await chunkHolderService.post(
     ChunkHolderEndpoints.GENERATE_TOKEN,

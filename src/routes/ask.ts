@@ -4,7 +4,6 @@ import {
   chunkHolderController,
   inferenceRunnerController,
 } from "../controllers";
-import { getChunkApiKey, getInferenceApiKey } from "../utils";
 import { Chunk } from "../services/inferenceRunner";
 import { ChunkContent } from "../services/chunkHolder";
 
@@ -31,21 +30,21 @@ router.post("/", async (req: Request, res: Response) => {
   }
 
   try {
-    const inferenceApiKey = getInferenceApiKey();
-    const chunkApiKey = getChunkApiKey();
-
     console.debug("Sending request to inference runner");
-    const chunks = await inferenceRunnerController.getChunks(
-      question,
-      inferenceApiKey
-    );
+    const chunks = await inferenceRunnerController.getChunks(question);
 
     console.debug("Generating access token");
-    const accessToken = await chunkHolderController.generateToken(chunkApiKey);
+    const accessToken = await chunkHolderController.generateToken();
 
     console.debug("Fetching chunks content");
-    const chunkContentPromises = chunks.map((chunk) => {
-      return chunkHolderController.getChunkContent(chunk.chunkId, accessToken);
+    const chunkContentPromises = chunks.map(({ chunkId }) => {
+      return chunkHolderController
+        .getChunkContent(chunkId, accessToken)
+        .catch((e) => {
+          console.error(
+            `Failed to get chunk content. Chunk ID: ${chunkId}.\n${e}`
+          );
+        });
     });
     const chunksContent = await Promise.all(chunkContentPromises);
 
